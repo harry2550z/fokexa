@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.log
+npm-debug.log*
+
+# Local / temporary files
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+
+# User data should stay local, not in the repo
+*.json.backup
+studytrack-*-backup-*.json
+fokexa-*-backup-*.json
