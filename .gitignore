@@ -13,3 +13,6 @@ Thumbs.db
 *.json.backup
 studytrack-*-backup-*.json
 fokexa-*-backup-*.json
+
+# Duplicate local logo copy; tracked assets live in assets/
+/logo.png
