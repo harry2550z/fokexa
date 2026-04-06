@@ -813,8 +813,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;displ
       </div>
       <div class="backup-section danger-zone">
         <h3>Danger Zone</h3>
-        <p>Permanently delete all your sessions from this device. Export a backup first.</p>
-        <button class="btn danger" onclick="clearAllData()">Delete All Data</button>
+        <p>Permanently reset all local app data on this device: sessions, tasks, exams, chapters, subjects, settings, and stored backups. Export a backup first.</p>
+        <button class="btn danger" onclick="clearAllData()">Reset Local App Data</button>
       </div>
     </div>
 
@@ -1764,11 +1764,34 @@ function updateAutoBackupInfo(){
   info.textContent=`Stored backups: ${list.length}/10. Latest: ${last}. Schedule: ${cfg.enabled?'on':'off'} ${cfg.frequency||'daily'} at ${cfg.time||'21:00'}.`;
 }
 function clearAllData(){
-  if(!confirm('Delete ALL sessions from this device? Export a backup first.'))return;
-  if(!confirm('Last confirmation: delete all sessions now?'))return;
-  const oldSessions=[...sessions];
-  sessions=[];saveSessions(sessions);renderAll();
-  pushUndo('All sessions deleted',()=>{sessions=oldSessions;saveSessions(sessions);renderAll();});
+  if(!confirm('Reset ALL local app data on this device? Export a backup first.'))return;
+  if(!confirm('Last confirmation: sessions, tasks, exams, chapters, subjects, settings, and stored backups will be removed from this device.'))return;
+  [STORAGE_KEY,CHAPTERS_KEY,SUBJECTS_KEY,SETTINGS_KEY,ACTIVE_KEY,AUTO_BACKUPS_KEY,CAL_TASKS_KEY,CAL_EXAMS_KEY].forEach(k=>{
+    try{localStorage.removeItem(k);}catch(e){}
+  });
+  sessions=[];
+  chapters={};
+  SUBJECTS=[...DEFAULT_SUBJECTS];
+  settings=loadSettings();
+  calTasks={};
+  calExams=[];
+  activeSession=null;
+  elapsed=0;
+  if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+  stopBreakTimer();
+  saveSessions(sessions);
+  saveChapters(chapters);
+  persistSubjects();
+  saveSettings();
+  saveCalTasks();
+  saveCalExams();
+  resetTimerUI();
+  renderChips();
+  populateChapterSelect();
+  renderAll();
+  renderCalendar();
+  renderSettings();
+  showToast('Local app data reset');
 }
 const VIEW_TITLES={timer:'Timer',todo:'To Do List',chapters:'Chapters & Subtopics',log:'Session Log',stats:'Analytics',calendar:'Calendar & Exams',subjects:'Manage Subjects',backup:'Backup & Restore',settings:'Settings'};
 function switchView(name,btn){
